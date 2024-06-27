@@ -85,8 +85,8 @@ exports.adddevice = async function (req, res, next) {
 
     // Save the updated user document
     const updatedUser = await userToUpdate.save();
-    if(req.io){
-      req.io.emit("rooms", {rooms: updatedUser.rooms})
+    if (req.io) {
+      req.io.emit("rooms", { rooms: updatedUser.rooms })
     }
     res.status(201).json(updatedUser);
   } catch (err) {
@@ -152,9 +152,14 @@ exports.UpdateDevice = async function (req, res, next) {
     // Save the updated user document
     const updatedUser = await userToUpdate.save();
 
+    if (req.io) {
+      req.io.emit("rooms", { rooms: updatedUser.rooms }) // Api Call Socket Set
+    }
+
     //  updatedUser = updatedUser.rooms.find((room) => room.id === roomId);
 
     res.status(200).json({ devices: roomToUpdate.devices });
+
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
@@ -203,6 +208,10 @@ exports.DeleteDevice = async function (req, res, next) {
 
     // Save the changes to the room, suppressing the warning
     await userToUpdate.save({ suppressWarning: true });
+
+    if (req.io) {
+      req.io.emit("rooms", { rooms: userToUpdate.rooms })
+    }
 
     // Print the updated devices array for debugging
     console.log("Devices in the room:", roomToUpdate.devices);
